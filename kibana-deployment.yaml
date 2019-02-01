@@ -17,6 +17,7 @@ spec:
     spec:
       containers:
       - name: kibana
+       #image: huisebug/sec_re:kibana-oss-6.3.2 之前未汉化，Docker目录即汉化的Dockerfile
         image: huisebug/sec_re:kibana-oss-6.3.2-CN
         env:
         - name: CLUSTER_NAME
