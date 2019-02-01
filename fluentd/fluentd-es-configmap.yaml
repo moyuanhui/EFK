@@ -37,7 +37,7 @@ data:
     # The time_format specification below makes sure we properly
     # parse the time format produced by Docker. This will be
     # submitted to Elasticsearch and should appear like:
-    # $ curl 'http://elasticsearch-logging:9200/_search?pretty'
+    # $ curl 'http://elasticsearch:9200/_search?pretty'
     # ...
     # {
     #      "_index" : "logstash-2014.09.25",
@@ -460,7 +460,7 @@ data:
       @log_level info
       type_name _doc
       include_tag_key true
-      host elasticsearch-logging
+      host elasticsearch
       port 9200
       logstash_format true
       <buffer>
