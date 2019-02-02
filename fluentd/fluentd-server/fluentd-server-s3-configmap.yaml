@@ -1,0 +1,55 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: fluentd-server-config-v0.1.4
+  namespace: efk
+  labels:
+    addonmanager.kubernetes.io/mode: Reconcile
+data:
+  system.conf: |-
+    <system>
+      root_dir /tmp/fluentd-buffers/
+    </system>
+
+  system.input.conf: |-
+    # Listen to incoming data over SSL
+    <source>
+      @type forward
+      port 24224
+      bind 0.0.0.0
+    </source>
+
+  output.conf: |-
+    # Enriches records with Kubernetes metadata
+    <filter kubernetes.**>
+      @type kubernetes_metadata
+    </filter>
+    # Store Data in Elasticsearch and S3
+    <match *.**>
+      @type copy
+      <store>
+        @id elasticsearch
+        @type elasticsearch
+        @log_level info
+        host elasticsearch
+        port 9200
+        #include_tag_key true
+        #tag_key @log_name
+        logstash_format true
+        request_timeout    30s
+        slow_flush_log_threshold 30s
+        <buffer>
+          @type file
+          path /var/log/fluentd-buffers/server.buffer
+          flush_mode interval
+          #retry_type exponential_backoff
+          flush_thread_count 12 # 可以根据实际需要也需兼顾下ES的处理能力进行调整
+          flush_interval 8s  # 可以根据实际需要进行调整
+          retry_max_interval 30
+          chunk_limit_size 32M # 可以根据ES实际处理能力进行调整，务必<100MB 
+          #queue_limit_length 64 #8
+          total_limit_size 20G
+          retry_wait 10s
+        </buffer>
+      </store>
+    </match>
